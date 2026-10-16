@@ -6,61 +6,132 @@
 <title>Private Course | Grammar Diagnostic</title>
 <style>
 :root{--ink:#20283a;--muted:#667085;--line:#e4e7ec;--bg:#f5f7fb;--card:#fff;--accent:#4357d8;--soft:#eef0ff;--good:#16794b;--bad:#b42318}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
 header{background:linear-gradient(135deg,#222d61,#4357d8);color:white;padding:34px 20px}
-.wrap{max-width:900px;margin:auto;padding:0 16px}header h1{margin:0;font-size:clamp(1.8rem,4vw,2.6rem)}header p{margin:8px 0 0;color:#e3e7ff}
-main{padding:22px 0 48px}.panel,.section{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:22px;margin-bottom:16px;box-shadow:0 3px 14px #17255408}
-h2{font-size:1.25rem;margin:0 0 8px}h3{font-size:1rem;margin:0 0 10px}.muted{color:var(--muted);font-size:.94rem}
-label.field{display:block;font-weight:600;margin:12px 0 5px}input[type=text],textarea{width:100%;padding:11px 12px;border:1px solid #cfd4df;border-radius:9px;font:inherit;background:white}
-.question{padding:16px 0;border-top:1px solid var(--line)}.question:first-of-type{border-top:0}.qtitle{font-weight:650;margin-bottom:9px}.options{display:grid;gap:8px}.option{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:10px;padding:10px 12px;cursor:pointer}.option:hover{background:#f8f9ff;border-color:#aab3ff}.option input{margin-top:5px;accent-color:var(--accent)}
-textarea{min-height:76px;resize:vertical}.btnrow{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}button{border:0;border-radius:10px;padding:11px 16px;font:inherit;font-weight:650;cursor:pointer}.primary{background:var(--accent);color:#fff}.secondary{background:#eef0f5;color:var(--ink)}.result{display:none}.score{font-size:2rem;font-weight:800;color:var(--accent)}.feedback{padding:12px;border-radius:10px;background:var(--soft);margin-top:12px}.teacher{display:none;background:#fffaf0;border-color:#f3d7a5}.teacher ol{padding-left:22px}.small{font-size:.86rem}.pill{display:inline-block;background:var(--soft);color:var(--accent);padding:4px 9px;border-radius:99px;font-size:.82rem;font-weight:700}
-@media print{body{background:#fff}header{background:#fff;color:#111;padding:12px 0}header p{color:#333}.wrap{max-width:none;padding:0}.panel,.section{box-shadow:none;break-inside:avoid}.btnrow,.teacher-toggle{display:none!important}.result{display:block!important}}
+.wrap{max-width:900px;margin:auto;padding:0 16px}
+header h1{margin:0;font-size:clamp(1.8rem,4vw,2.6rem)}
+header p{margin:8px 0 0;color:#e3e7ff}
+main{padding:22px 0 48px}
+.panel,.section{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:22px;margin-bottom:16px;box-shadow:0 3px 14px #17255408}
+h2{font-size:1.25rem;margin:0 0 8px}
+h3{font-size:1rem;margin:0 0 10px}
+.muted{color:var(--muted);font-size:.94rem}
+label.field{display:block;font-weight:600;margin:12px 0 5px}
+input[type=text],textarea{width:100%;padding:11px 12px;border:1px solid #cfd4df;border-radius:9px;font:inherit;background:white;transition: border-color 0.2s;}
+input[type=text]:focus, textarea:focus {outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--soft);}
+input:disabled, textarea:disabled {background: #f8f9fa; color: #6c757d; cursor: not-allowed;}
+.question{padding:16px 0;border-top:1px solid var(--line)}
+.question:first-of-type{border-top:0}
+.qtitle{font-weight:650;margin-bottom:9px}
+.options{display:grid;gap:8px}
+.option{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:10px;padding:10px 12px;cursor:pointer;transition: background 0.2s;}
+.option:hover{background:#f8f9ff;border-color:#aab3ff}
+.option.disabled{pointer-events: none; opacity: 0.7;}
+.option input{margin-top:5px;accent-color:var(--accent)}
+textarea{min-height:76px;resize:vertical}
+.btnrow{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px; align-items: center;}
+button{border:0;border-radius:10px;padding:11px 16px;font:inherit;font-weight:650;cursor:pointer;transition: opacity 0.2s;}
+button:hover{opacity: 0.9;}
+.primary{background:var(--accent);color:#fff}
+.secondary{background:#eef0f5;color:var(--ink)}
+.result{display:none}
+.score{font-size:2rem;font-weight:800;color:var(--accent)}
+.feedback{padding:12px;border-radius:10px;background:var(--soft);margin-top:12px}
+.teacher{display:none;background:#fffaf0;border-color:#f3d7a5}
+.teacher ol{padding-left:22px}
+.small{font-size:.86rem}
+.pill{display:inline-block;background:var(--soft);color:var(--accent);padding:4px 9px;border-radius:99px;font-size:.82rem;font-weight:700}
+.error-msg{color: var(--bad); font-size: 0.9rem; display: none; margin-top: 5px;}
+
+/* Pengaturan untuk Print / Simpan PDF */
+@media print{
+  body{background:#fff}
+  header{background:#fff;color:#111;padding:12px 0}
+  header p{color:#333}.wrap{max-width:none;padding:0}
+  .panel,.section{box-shadow:none;break-inside:avoid}
+  .btnrow,.teacher-toggle, .print-guide {display:none!important}
+  .result{display:block!important}
+}
+
+/* Pengaturan KHUSUS untuk Layar HP */
+@media (max-width: 600px) {
+  body { font-size: 13.5px; }
+  header { padding: 24px 16px; }
+  header h1 { font-size: 1.5rem !important; }
+  .panel, .section { padding: 16px 14px; margin-bottom: 12px; }
+  .qtitle { font-size: 0.95rem; }
+  .option { padding: 8px 10px; }
+  input[type=text], textarea { padding: 9px 10px; }
+  .btnrow { flex-direction: column; align-items: stretch; }
+  button { width: 100%; padding: 12px; }
+  .print-guide { text-align: center; }
+}
 </style>
 </head>
 <body>
-<header><div class="wrap">
-  <span class="pill">PRIVATE COURSE · SESSION 1</span>
-  <h1>Grammar Diagnostic</h1>
-  <p>A starting-point check of your English grammar — do your best, and don't worry about mistakes.</p>
-</div></header>
+<header>
+  <div class="wrap">
+    <span class="pill">PRIVATE COURSE · SESSION 1</span>
+    <h1>Grammar Diagnostic</h1>
+    <p>A starting-point check of your English grammar — do your best, and don't worry about mistakes.</p>
+  </div>
+</header>
 <main class="wrap">
   <section class="panel">
     <h2>Student Information</h2>
-    <label class="field" for="student">Student name</label><input id="student" type="text" placeholder="Enter student name">
-    <label class="field" for="date">Date</label><input id="date" type="text" placeholder="e.g. 16 October 2026">
+    <label class="field" for="student">Student name <span style="color:red">*</span></label>
+    <input id="student" type="text" placeholder="Enter student name" required>
+    <div id="student-error" class="error-msg">Please enter your name before checking answers.</div>
+    
+    <label class="field" for="date">Date</label>
+    <input id="date" type="text" placeholder="e.g. 16 October 2026">
     <p class="muted">Instructions: Answer independently. If you are unsure, choose your best answer. The written section is reviewed by your teacher.</p>
   </section>
 
   <form id="quiz">
-  <section class="section">
-    <h2>Part A · Multiple Choice</h2><p class="muted">Choose one answer for each question. (15 points)</p>
-    <div id="mcq"></div>
-  </section>
-  <section class="section">
-    <h2>Part B · Fill in the Blank</h2><p class="muted">Type the missing word or words. (10 points)</p>
-    <div id="fill"></div>
-  </section>
-  <section class="section">
-    <h2>Part C · Error Correction</h2><p class="muted">Rewrite each sentence correctly. (5 points)</p>
-    <div id="errors"></div>
-  </section>
-  <section class="section">
-    <h2>Part D · Make Your Own Sentences</h2><p class="muted">Write a complete sentence for each instruction. Your teacher will review these. (Not auto-scored)</p>
-    <div id="writing"></div>
-  </section>
-  <div class="btnrow">
-    <button class="primary" type="button" onclick="checkAnswers()">Check objective answers</button>
-    <button class="secondary" type="button" onclick="window.print()">Print / Save as PDF</button>
-    <button class="secondary" type="reset" onclick="setTimeout(resetResults,0)">Reset answers</button>
-  </div>
+    <section class="section">
+      <h2>Part A · Multiple Choice</h2>
+      <p class="muted">Choose one answer for each question. (15 points)</p>
+      <div id="mcq"></div>
+    </section>
+    
+    <section class="section">
+      <h2>Part B · Fill in the Blank</h2>
+      <p class="muted">Type the missing word or words. (10 points)</p>
+      <div id="fill"></div>
+    </section>
+    
+    <section class="section">
+      <h2>Part C · Error Correction</h2>
+      <p class="muted">Rewrite each sentence correctly. (5 points)</p>
+      <div id="errors"></div>
+    </section>
+    
+    <section class="section">
+      <h2>Part D · Make Your Own Sentences</h2>
+      <p class="muted">Write a complete sentence for each instruction. Your teacher will review these. (Not auto-scored)</p>
+      <div id="writing"></div>
+    </section>
+    
+    <div class="btnrow">
+      <button class="primary" type="button" onclick="checkAnswers()">Check objective answers</button>
+      <button class="secondary" type="button" onclick="resetResults()">Reset answers</button>
+      <span class="muted small print-guide"><em>* To save as PDF, use your browser's print option (Ctrl+P)</em></span>
+    </div>
   </form>
 
   <section id="result" class="panel result" aria-live="polite">
-    <h2>Your Results</h2><div class="score" id="score">0 / 25</div>
-    <p id="scoreText"></p><div id="details"></div>
+    <h2>Your Results, <span id="display-name"></span></h2>
+    <div class="score" id="score">0 / 25</div>
+    <p id="scoreText"></p>
+    <div id="details"></div>
     <p class="muted small">This is a screening tool, not an official CEFR placement test. Your teacher should also consider speaking, writing, and how independently you complete the tasks.</p>
-    <div class="btnrow"><button class="secondary teacher-toggle" type="button" onclick="toggleTeacher()">Show teacher answer key</button></div>
+    <div class="btnrow">
+      <button class="secondary teacher-toggle" type="button" onclick="toggleTeacher()">Show teacher answer key</button>
+    </div>
   </section>
+
   <section id="teacher" class="panel teacher">
     <h2>Teacher Copy · Answer Key</h2>
     <p class="muted">Keep this section hidden while the student is taking the diagnostic.</p>
@@ -68,78 +139,212 @@ textarea{min-height:76px;resize:vertical}.btnrow{display:flex;flex-wrap:wrap;gap
     <h3>Part B · Suggested answers</h3><ol id="keyFill"></ol>
     <h3>Part C · Suggested corrections</h3><ol id="keyErrors"></ol>
     <h3>Part D · Review checklist</h3>
-    <ul><li>Is the sentence complete and understandable?</li><li>Is the target structure used accurately?</li><li>Can the student produce the structure independently?</li><li>Note recurring errors rather than judging only the final score.</li></ul>
+    <ul>
+      <li>Is the sentence complete and understandable?</li>
+      <li>Is the target structure used accurately?</li>
+      <li>Can the student produce the structure independently?</li>
+      <li>Note recurring errors rather than judging only the final score.</li>
+    </ul>
     <h3>Suggested observation notes</h3>
     <textarea placeholder="Note patterns, strengths, and areas to revisit..."></textarea>
   </section>
-  <p class="muted small">Private Course · Grammar Diagnostic · Use as a teaching aid, not as a formal standardized assessment.</p>
 </main>
+
 <script>
+// Data Questions
 const mcq = [
-["She ___ to work every day.",["go","goes","going"],1],
-["I ___ a meeting yesterday.",["have","had","has"],1],
-["They ___ watching TV now.",["is","am","are"],2],
-["There ___ some milk in the fridge.",["are","is","be"],1],
-["He doesn't ___ coffee.",["likes","like","liking"],1],
-["We have lived here ___ 2020.",["for","since","during"],1],
-["If it rains, we ___ at home.",["stay","will stay","stayed"],1],
-["I am interested ___ learning English.",["on","at","in"],2],
-["This is ___ useful idea.",["a","an","the"],0],
-["She is ___ than her brother.",["tall","taller","tallest"],1],
-["The report ___ by my manager yesterday.",["checked","was checked","is checking"],1],
-["I ___ finish this task before 5 p.m. (ability)",["can","must to","am can"],0],
-["How ___ people attended the meeting?",["much","many","any"],1],
-["He said that he ___ busy.",["is","was","be"],1],
-["I have never ___ to Bali.",["been","went","go"],0]
+  ["She ___ to work every day.", ["go", "goes", "going"], 1],
+  ["I ___ a meeting yesterday.", ["have", "had", "has"], 1],
+  ["They ___ watching TV now.", ["is", "am", "are"], 2],
+  ["There ___ some milk in the fridge.", ["are", "is", "be"], 1],
+  ["He doesn't ___ coffee.", ["likes", "like", "liking"], 1],
+  ["We have lived here ___ 2020.", ["for", "since", "during"], 1],
+  ["If it rains, we ___ at home.", ["stay", "will stay", "stayed"], 1],
+  ["I am interested ___ learning English.", ["on", "at", "in"], 2],
+  ["This is ___ useful idea.", ["a", "an", "the"], 0],
+  ["She is ___ than her brother.", ["tall", "taller", "tallest"], 1],
+  ["The report ___ by my manager yesterday.", ["checked", "was checked", "is checking"], 1],
+  ["I ___ finish this task before 5 p.m. (ability)", ["can", "must to", "am can"], 0],
+  ["How ___ people attended the meeting?", ["much", "many", "any"], 1],
+  ["He said that he ___ busy.", ["is", "was", "be"], 1],
+  ["I have never ___ to Bali.", ["been", "went", "go"], 0]
 ];
+
 const fills = [
-["My sister ___ (work) in a bank." ,"works"],
-["We ___ (not / see) him yesterday.","didn't see"],
-["Look! The children ___ (play) outside.","are playing"],
-["There ___ two chairs in the room.","are"],
-["I have worked here ___ five years.","for"],
-["She is good ___ solving problems.","at"],
-["If I have time tomorrow, I ___ call you.","will"],
-["They ___ already finished the assignment.","have"],
-["This is the person ___ helped me.","who"],
-["I was tired, ___ I went to bed early.","so"]
+  ["My sister ___ (work) in a bank.", "works"],
+  ["We ___ (not / see) him yesterday.", "didn't see"],
+  ["Look! The children ___ (play) outside.", "are playing"],
+  ["There ___ two chairs in the room.", "are"],
+  ["I have worked here ___ five years.", "for"],
+  ["She is good ___ solving problems.", "at"],
+  ["If I have time tomorrow, I ___ call you.", "will"],
+  ["They ___ already finished the assignment.", "have"],
+  ["This is the person ___ helped me.", "who"],
+  ["I was tired, ___ I went to bed early.", "so"]
 ];
+
 const errors = [
-["She don't like spicy food.","She doesn't like spicy food."],
-["I am working here since 2022.","I have been working here since 2022. / I have worked here since 2022."],
-["He can to drive a car.","He can drive a car."],
-["There are a lot of information.","There is a lot of information."],
-["Yesterday I go to the office.","Yesterday I went to the office."]
+  ["She don't like spicy food.", "She doesn't like spicy food."],
+  ["I am working here since 2022.", "I have been working here since 2022. / I have worked here since 2022."],
+  ["He can to drive a car.", "He can drive a car."],
+  ["There are a lot of information.", "There is a lot of information."],
+  ["Yesterday I go to the office.", "Yesterday I went to the office."]
 ];
+
 const writing = [
-"Write one sentence about your daily routine (simple present).",
-"Write one sentence about something you did yesterday (past simple).",
-"Write one sentence about your plans for next week (future).",
-"Write one sentence giving advice using should."
+  "Write one sentence about your daily routine (simple present).",
+  "Write one sentence about something you did yesterday (past simple).",
+  "Write one sentence about your plans for next week (future).",
+  "Write one sentence giving advice using should."
 ];
-function render(){
- document.getElementById('mcq').innerHTML=mcq.map((q,i)=>`<div class="question"><div class="qtitle">${i+1}. ${q[0]}</div><div class="options">${q[1].map((o,j)=>`<label class="option"><input type="radio" name="mcq${i}" value="${j}"><span>${String.fromCharCode(65+j)}. ${o}</span></label>`).join('')}</div><div class="small muted" id="mcqfb${i}"></div></div>`).join('');
- document.getElementById('fill').innerHTML=fills.map((q,i)=>`<div class="question"><div class="qtitle">${i+16}. ${q[0]}</div><input type="text" id="fill${i}" autocomplete="off" placeholder="Your answer"><div class="small muted" id="fillfb${i}"></div></div>`).join('');
- document.getElementById('errors').innerHTML=errors.map((q,i)=>`<div class="question"><div class="qtitle">${i+26}. Correct this sentence: <em>${q[0]}</em></div><input type="text" id="err${i}" placeholder="Write the corrected sentence"><div class="small muted" id="errfb${i}"></div></div>`).join('');
- document.getElementById('writing').innerHTML=writing.map((q,i)=>`<div class="question"><div class="qtitle">${i+31}. ${q}</div><textarea id="write${i}" placeholder="Write your sentence here..."></textarea></div>`).join('');
- document.getElementById('keyMCQ').innerHTML=mcq.map((q,i)=>`<li>${q[1][q[2]]}</li>`).join('');
- document.getElementById('keyFill').innerHTML=fills.map(q=>`<li>${q[1]}</li>`).join('');
- document.getElementById('keyErrors').innerHTML=errors.map(q=>`<li>${q[1]}</li>`).join('');
+
+// Helper functions
+function norm(s) {
+  return s.toLowerCase().trim().replace(/[.!?]+$/, '').replace(/\s+/g, ' ').replace(/[’]/g, "'");
 }
-function norm(s){return s.toLowerCase().trim().replace(/[.!?]+$/,'').replace(/\s+/g,' ').replace(/[’]/g,"'");}
-function checkAnswers(){
- let score=0, mcqCorrect=0, fillCorrect=0;
- mcq.forEach((q,i)=>{const picked=document.querySelector(`input[name="mcq${i}"]:checked`);const ok=picked && Number(picked.value)===q[2];if(ok){score++;mcqCorrect++}const fb=document.getElementById(`mcqfb${i}`);fb.textContent=ok?'✓ Correct':`Answer: ${q[1][q[2]]}`;fb.style.color=ok?'var(--good)':'var(--bad)'});
- fills.forEach((q,i)=>{const val=norm(document.getElementById(`fill${i}`).value);const acceptable=q[1].split(' / ').map(norm);const ok=acceptable.includes(val);if(ok){score++;fillCorrect++}const fb=document.getElementById(`fillfb${i}`);fb.textContent=ok?'✓ Correct':`Suggested answer: ${q[1]}`;fb.style.color=ok?'var(--good)':'var(--bad)'});
- document.getElementById('score').textContent=`${score} / 25`;
- let interpretation=score>=22?'Strong performance on these objective items. Check written production to confirm.':score>=17?'Developing control. Review missed items and confirm patterns through speaking.':score>=11?'Several grammar areas may need review. Use the written and speaking tasks to identify priorities.':'Start with core structures and use the results to plan supportive review.';
- document.getElementById('scoreText').textContent=interpretation;
- document.getElementById('details').innerHTML=`<div class="feedback">Multiple choice: <strong>${mcqCorrect}/15</strong><br>Fill in the blank: <strong>${fillCorrect}/10</strong><br>Error correction and sentence production are for teacher review.</div>`;
- document.getElementById('result').style.display='block';
- document.getElementById('result').scrollIntoView({behavior:'smooth',block:'start'});
+
+function lockInputs(lock) {
+  document.querySelectorAll('input, textarea').forEach(el => {
+    if(el.id !== 'student' && el.id !== 'date') el.disabled = lock;
+  });
+  document.querySelectorAll('.option').forEach(el => {
+    lock ? el.classList.add('disabled') : el.classList.remove('disabled');
+  });
 }
-function toggleTeacher(){const el=document.getElementById('teacher');el.style.display=el.style.display==='block'?'none':'block';if(el.style.display==='block')el.scrollIntoView({behavior:'smooth',block:'start'})}
-function resetResults(){document.getElementById('result').style.display='none';document.getElementById('teacher').style.display='none';document.querySelectorAll('[id$="fb"]').forEach(e=>e.textContent='')}
+
+// Render the UI
+function render() {
+  document.getElementById('mcq').innerHTML = mcq.map((q, i) => `
+    <div class="question">
+      <div class="qtitle">${i + 1}. ${q[0]}</div>
+      <div class="options">
+        ${q[1].map((o, j) => `
+          <label class="option">
+            <input type="radio" name="mcq${i}" value="${j}">
+            <span>${String.fromCharCode(65 + j)}.${o}</span>
+          </label>
+        `).join('')}
+      </div>
+      <div class="small muted" id="mcqfb${i}" style="margin-top:8px;"></div>
+    </div>
+  `).join('');
+
+  document.getElementById('fill').innerHTML = fills.map((q, i) => `
+    <div class="question">
+      <div class="qtitle">${i + 16}. ${q[0]}</div>
+      <input type="text" id="fill${i}" autocomplete="off" placeholder="Your answer">
+      <div class="small muted" id="fillfb${i}" style="margin-top:8px;"></div>
+    </div>
+  `).join('');
+
+  document.getElementById('errors').innerHTML = errors.map((q, i) => `
+    <div class="question">
+      <div class="qtitle">${i + 26}. Correct this sentence: <em>${q[0]}</em></div>
+      <input type="text" id="err${i}" placeholder="Write the corrected sentence">
+    </div>
+  `).join('');
+
+  document.getElementById('writing').innerHTML = writing.map((q, i) => `
+    <div class="question">
+      <div class="qtitle">${i + 31}. ${q}</div>
+      <textarea id="write${i}" placeholder="Write your sentence here..."></textarea>
+    </div>
+  `).join('');
+
+  document.getElementById('keyMCQ').innerHTML = mcq.map(q => `<li>${q[1][q[2]]}</li>`).join('');
+  document.getElementById('keyFill').innerHTML = fills.map(q => `<li>${q[1]}</li>`).join('');
+  document.getElementById('keyErrors').innerHTML = errors.map(q => `<li>${q[1]}</li>`).join('');
+}
+
+// Grading Logic
+function checkAnswers() {
+  const studentName = document.getElementById('student').value.trim();
+  const errorMsg = document.getElementById('student-error');
+
+  if (!studentName) {
+    errorMsg.style.display = 'block';
+    document.getElementById('student').focus();
+    return;
+  }
+  errorMsg.style.display = 'none';
+  document.getElementById('display-name').textContent = studentName;
+
+  let score = 0, mcqCorrect = 0, fillCorrect = 0;
+
+  mcq.forEach((q, i) => {
+    const picked = document.querySelector(`input[name="mcq${i}"]:checked`);
+    const isCorrect = picked && Number(picked.value) === q[2];
+    
+    if (isCorrect) {
+      score++;
+      mcqCorrect++;
+    }
+    
+    const fb = document.getElementById(`mcqfb${i}`);
+    fb.innerHTML = isCorrect ? '<strong>✓ Correct</strong>' : `<strong>✗ Incorrect.</strong> Answer: ${q[1][q[2]]}`;
+    fb.style.color = isCorrect ? 'var(--good)' : 'var(--bad)';
+  });
+
+  fills.forEach((q, i) => {
+    const val = norm(document.getElementById(`fill${i}`).value);
+    const acceptable = q[1].split(' / ').map(norm);
+    const isCorrect = acceptable.includes(val);
+    
+    if (isCorrect) {
+      score++;
+      fillCorrect++;
+    }
+    
+    const fb = document.getElementById(`fillfb${i}`);
+    if(val === "") {
+       fb.innerHTML = `<strong>✗ Skipped.</strong> Suggested answer: ${q[1]}`;
+       fb.style.color = 'var(--bad)';
+    } else {
+       fb.innerHTML = isCorrect ? '<strong>✓ Correct</strong>' : `<strong>✗ Incorrect.</strong> Suggested answer: ${q[1]}`;
+       fb.style.color = isCorrect ? 'var(--good)' : 'var(--bad)';
+    }
+  });
+
+  document.getElementById('score').textContent = `${score} / 25`;
+  
+  let interpretation = score >= 22 ? 'Strong performance on these objective items. Check written production to confirm.' : 
+                       score >= 17 ? 'Developing control. Review missed items and confirm patterns through speaking.' : 
+                       score >= 11 ? 'Several grammar areas may need review. Use the written and speaking tasks to identify priorities.' : 
+                       'Start with core structures and use the results to plan supportive review.';
+                       
+  document.getElementById('scoreText').textContent = interpretation;
+  document.getElementById('details').innerHTML = `
+    <div class="feedback">
+      Multiple choice: <strong>${mcqCorrect}/15</strong><br>
+      Fill in the blank: <strong>${fillCorrect}/10</strong><br>
+      <span class="muted small">Error correction and sentence production are for teacher review.</span>
+    </div>
+  `;
+  
+  document.getElementById('result').style.display = 'block';
+  lockInputs(true);
+  document.getElementById('result').scrollIntoView({behavior: 'smooth', block: 'start'});
+}
+
+function toggleTeacher() {
+  const el = document.getElementById('teacher');
+  el.style.display = el.style.display === 'block' ? 'none' : 'block';
+  if (el.style.display === 'block') el.scrollIntoView({behavior: 'smooth', block: 'start'});
+}
+
+// FUNGSI RESET TELAH DIPERBAIKI (HAPUS CONFIRM POP-UP)
+function resetResults() {
+  document.getElementById('quiz').reset();
+  document.getElementById('result').style.display = 'none';
+  document.getElementById('teacher').style.display = 'none';
+  document.getElementById('student-error').style.display = 'none';
+  
+  document.querySelectorAll('[id$="fb"]').forEach(e => e.textContent = '');
+  
+  lockInputs(false);
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+
 render();
 </script>
 </body>
