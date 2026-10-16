@@ -256,7 +256,7 @@ function render() {
   document.getElementById('keyErrors').innerHTML = errors.map(q => `<li>${q[1]}</li>`).join('');
 }
 
-// Grading Logic
+// Grading Logic & Kirim ke Spreadsheet
 function checkAnswers() {
   const studentName = document.getElementById('student').value.trim();
   const errorMsg = document.getElementById('student-error');
@@ -274,11 +274,7 @@ function checkAnswers() {
   mcq.forEach((q, i) => {
     const picked = document.querySelector(`input[name="mcq${i}"]:checked`);
     const isCorrect = picked && Number(picked.value) === q[2];
-    
-    if (isCorrect) {
-      score++;
-      mcqCorrect++;
-    }
+    if (isCorrect) { score++; mcqCorrect++; }
     
     const fb = document.getElementById(`mcqfb${i}`);
     fb.innerHTML = isCorrect ? '<strong>✓ Correct</strong>' : `<strong>✗ Incorrect.</strong> Answer: ${q[1][q[2]]}`;
@@ -289,11 +285,7 @@ function checkAnswers() {
     const val = norm(document.getElementById(`fill${i}`).value);
     const acceptable = q[1].split(' / ').map(norm);
     const isCorrect = acceptable.includes(val);
-    
-    if (isCorrect) {
-      score++;
-      fillCorrect++;
-    }
+    if (isCorrect) { score++; fillCorrect++; }
     
     const fb = document.getElementById(`fillfb${i}`);
     if(val === "") {
@@ -324,6 +316,36 @@ function checkAnswers() {
   document.getElementById('result').style.display = 'block';
   lockInputs(true);
   document.getElementById('result').scrollIntoView({behavior: 'smooth', block: 'start'});
+
+  // =========================================================
+  // PENGIRIMAN DATA KE GOOGLE SPREADSHEET
+  // =========================================================
+  const scriptURL = 'https://script.google.com/macros/s/AKfycbyg2YGVKgo3XsHzPD-BWBXafVY0mqRxhq8dF5rhW345apmyEOeDcEwqr-Tu9_eklnOl/exec'; 
+
+  const btnCheck = document.querySelector('button[onclick="checkAnswers()"]');
+  const originalText = btnCheck.textContent;
+  btnCheck.textContent = "Menyimpan nilai ke database...";
+  
+  fetch(scriptURL, {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      nama: studentName,
+      skor: score,
+      mcq: mcqCorrect,
+      fill: fillCorrect
+    })
+  })
+  .then(() => {
+    btnCheck.textContent = "Nilai Tersimpan!";
+  })
+  .catch(error => {
+    console.error('Error!', error.message);
+    btnCheck.textContent = "Gagal menyimpan. (Siswa tetap bisa print PDF)";
+  });
 }
 
 function toggleTeacher() {
@@ -332,7 +354,6 @@ function toggleTeacher() {
   if (el.style.display === 'block') el.scrollIntoView({behavior: 'smooth', block: 'start'});
 }
 
-// FUNGSI RESET TELAH DIPERBAIKI (HAPUS CONFIRM POP-UP)
 function resetResults() {
   document.getElementById('quiz').reset();
   document.getElementById('result').style.display = 'none';
@@ -342,6 +363,11 @@ function resetResults() {
   document.querySelectorAll('[id$="fb"]').forEach(e => e.textContent = '');
   
   lockInputs(false);
+  
+  // Kembalikan teks tombol jika sebelumnya terganti
+  const btnCheck = document.querySelector('button[onclick="checkAnswers()"]');
+  if(btnCheck) btnCheck.textContent = "Check objective answers";
+  
   window.scrollTo({top: 0, behavior: 'smooth'});
 }
 
