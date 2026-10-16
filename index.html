@@ -159,27 +159,27 @@ const mcq = [
   ["There ___ some milk in the fridge.", ["are", "is", "be"], 1],
   ["He doesn't ___ coffee.", ["likes", "like", "liking"], 1],
   ["We have lived here ___ 2020.", ["for", "since", "during"], 1],
-  ["If it rains, we ___ at home.", ["stay", "will stay", "stayed"], 1],
+  ["If it rains tomorrow, we ___ at home.", ["stay", "will stay", "stayed"], 1],
   ["I am interested ___ learning English.", ["on", "at", "in"], 2],
   ["This is ___ useful idea.", ["a", "an", "the"], 0],
   ["She is ___ than her brother.", ["tall", "taller", "tallest"], 1],
   ["The report ___ by my manager yesterday.", ["checked", "was checked", "is checking"], 1],
   ["I ___ finish this task before 5 p.m. (ability)", ["can", "must to", "am can"], 0],
   ["How ___ people attended the meeting?", ["much", "many", "any"], 1],
-  ["He said that he ___ busy.", ["is", "was", "be"], 1],
+  ["Tom said, 'I am busy.' Later, I told my friend that Tom ___ busy.", ["is", "was", "be"], 1],
   ["I have never ___ to Bali.", ["been", "went", "go"], 0]
 ];
 
 const fills = [
   ["My sister ___ (work) in a bank.", "works"],
-  ["We ___ (not / see) him yesterday.", "didn't see"],
+  ["We ___ (not / see) him yesterday.", "didn't see / did not see"],
   ["Look! The children ___ (play) outside.", "are playing"],
   ["There ___ two chairs in the room.", "are"],
   ["I have worked here ___ five years.", "for"],
   ["She is good ___ solving problems.", "at"],
-  ["If I have time tomorrow, I ___ call you.", "will"],
+  ["If I have time tomorrow, I promise I ___ call you.", "will"],
   ["They ___ already finished the assignment.", "have"],
-  ["This is the person ___ helped me.", "who"],
+  ["This is the person ___ helped me.", "who / that"],
   ["I was tired, ___ I went to bed early.", "so"]
 ];
 
@@ -194,7 +194,7 @@ const errors = [
 const writing = [
   "Write one sentence about your daily routine (simple present).",
   "Write one sentence about something you did yesterday (past simple).",
-  "Write one sentence about your plans for next week (future).",
+  "Write one sentence about your plans for next week. Use a suitable future form.",
   "Write one sentence giving advice using should."
 ];
 
@@ -318,33 +318,110 @@ function checkAnswers() {
   document.getElementById('result').scrollIntoView({behavior: 'smooth', block: 'start'});
 
   // =========================================================
-  // PENGIRIMAN DATA KE GOOGLE SPREADSHEET
+  // Prepare all 34 answers for Google Apps Script.
+  // Parts A/B are auto-scored; Parts C/D are saved for teacher review.
   // =========================================================
-  const scriptURL = 'https://script.google.com/macros/s/AKfycbyg2YGVKgo3XsHzPD-BWBXafVY0mqRxhq8dF5rhW345apmyEOeDcEwqr-Tu9_eklnOl/exec'; 
+  const answerRows = [];
 
+  mcq.forEach((q, i) => {
+    const picked = document.querySelector(`input[name="mcq${i}"]:checked`);
+    const isCorrect = picked && Number(picked.value) === q[2];
+    answerRows.push({
+      questionId: `GD${String(i + 1).padStart(3, '0')}`,
+      questionNumber: i + 1,
+      part: 'A',
+      questionType: 'Multiple Choice',
+      studentAnswer: picked ? q[1][Number(picked.value)] : '',
+      correctAnswer: q[1][q[2]],
+      autoScore: isCorrect ? 1 : 0,
+      maxScore: 1,
+      reviewStatus: 'Auto-scored'
+    });
+  });
+
+  fills.forEach((q, i) => {
+    const rawAnswer = document.getElementById(`fill${i}`).value.trim();
+    const val = norm(rawAnswer);
+    const acceptable = q[1].split(' / ').map(norm);
+    const isCorrect = acceptable.includes(val);
+    answerRows.push({
+      questionId: `GD${String(i + 16).padStart(3, '0')}`,
+      questionNumber: i + 16,
+      part: 'B',
+      questionType: 'Fill in the Blank',
+      studentAnswer: rawAnswer,
+      correctAnswer: q[1],
+      autoScore: isCorrect ? 1 : 0,
+      maxScore: 1,
+      reviewStatus: 'Auto-scored'
+    });
+  });
+
+  errors.forEach((q, i) => {
+    answerRows.push({
+      questionId: `GD${String(i + 26).padStart(3, '0')}`,
+      questionNumber: i + 26,
+      part: 'C',
+      questionType: 'Error Correction',
+      studentAnswer: document.getElementById(`err${i}`).value.trim(),
+      correctAnswer: q[1],
+      autoScore: '',
+      maxScore: 1,
+      reviewStatus: 'Pending review'
+    });
+  });
+
+  writing.forEach((q, i) => {
+    answerRows.push({
+      questionId: `GD${String(i + 31).padStart(3, '0')}`,
+      questionNumber: i + 31,
+      part: 'D',
+      questionType: 'Sentence Writing',
+      studentAnswer: document.getElementById(`write${i}`).value.trim(),
+      correctAnswer: '',
+      autoScore: '',
+      maxScore: 1,
+      reviewStatus: 'Pending review'
+    });
+  });
+
+  // =========================================================
+  // Send to Google Sheets. Replace the placeholder after deploying
+  // the updated Apps Script as a Web App.
+  // =========================================================
+  const scriptURL = 'https://script.google.com/macros/s/AKfycbyazdffLl6t-H6K374EalBFocx1r-HZX-_2LgGTu61D_6eE_SUypWLM4B37GO_R8sJSVQ/exec';
   const btnCheck = document.querySelector('button[onclick="checkAnswers()"]');
-  const originalText = btnCheck.textContent;
-  btnCheck.textContent = "Menyimpan nilai ke database...";
-  
+
+  if (!scriptURL.startsWith('https://script.google.com/macros/s/')) {
+    btnCheck.textContent = 'Results calculated — connect Apps Script next';
+    btnCheck.disabled = true;
+    return;
+  }
+
+  btnCheck.disabled = true;
+  btnCheck.textContent = 'Sending submission...';
+
   fetch(scriptURL, {
     method: 'POST',
     mode: 'no-cors',
     headers: {
-      'Content-Type': 'application/json'
+      'Content-Type': 'text/plain;charset=utf-8'
     },
     body: JSON.stringify({
       nama: studentName,
       skor: score,
       mcq: mcqCorrect,
-      fill: fillCorrect
+      fill: fillCorrect,
+      answers: answerRows
     })
   })
   .then(() => {
-    btnCheck.textContent = "Nilai Tersimpan!";
+    btnCheck.textContent = 'Submission sent — verify both Sheets';
   })
   .catch(error => {
-    console.error('Error!', error.message);
-    btnCheck.textContent = "Gagal menyimpan. (Siswa tetap bisa print PDF)";
+    console.error('Submission error:', error);
+    btnCheck.disabled = false;
+    btnCheck.textContent = 'Could not send — try again';
   });
 }
 
@@ -366,7 +443,7 @@ function resetResults() {
   
   // Kembalikan teks tombol jika sebelumnya terganti
   const btnCheck = document.querySelector('button[onclick="checkAnswers()"]');
-  if(btnCheck) btnCheck.textContent = "Check objective answers";
+  if(btnCheck) { btnCheck.textContent = "Check objective answers"; btnCheck.disabled = false; }
   
   window.scrollTo({top: 0, behavior: 'smooth'});
 }
